@@ -6,7 +6,7 @@
 
 #define FREQUENCY_DECREMENT 500000
 #define WAIT_TIME_AFTER_THROTTLE 15
-#define WAIT_TIME_AFTER_TEMP_DROP 30
+#define WAIT_TIME_AFTER_TEMP_DROP 3000
 #define MAX_ATTEMPTS 5
 
 volatile sig_atomic_t keep_running = 1;
@@ -123,24 +123,23 @@ int throttle(int temperature_limit) {
   }
 
   if (!keep_running) {
-    return -1; // If Ctrl + C is pressed, exit the throttle loop
+    return -1;
   }
 
-  if (current_cpu_temp <= temperature_limit) {
-    printf("[*] Temperature is below the limit. Waiting for %d seconds to "
-           "confirm...\n",
+  while (current_cpu_temp <= temperature_limit) {
+    printf("[*] Temperature is below the limit. Wait time %ds, Ctrl+C to "
+           "restore ...\n",
            WAIT_TIME_AFTER_TEMP_DROP);
     sleep(WAIT_TIME_AFTER_TEMP_DROP);
-    current_cpu_temp = get_current_cpu_temp();
+  }
+  current_cpu_temp = get_current_cpu_temp();
+  if (current_cpu_temp >= temperature_limit &&
+      MAX_ATTEMPTS != throttle_attempts) {
+    printf("[*] Temperature's still above limit. Continuing throttling...\n");
+    return throttle(temperature_limit);
+  }
 
-    if (current_cpu_temp <= temperature_limit) {
-      printf("[*] Temperature is stable. Unthrottling...\n");
-      return 1;
-    } else {
-      printf("[*] Temperature's still above limit. Continuing throttling...\n");
-      return throttle(temperature_limit);
-    }
-  } else {
+  if (MAX_ATTEMPTS == throttle_attempts) {
     printf("[!] Maximum attempts reached. Unthrottling and exiting...\n");
     return 0;
   }
@@ -194,10 +193,8 @@ int main(int argc, char *argv[]) {
     printf("[*] Starting Throttle...\n");
     int success = throttle(temperature_limit);
     if (!success && keep_running) {
-      printf("[!] Throttling failed after max attempts. Unthrottling...\n");
       unthrottle();
     }
-    unthrottle();
   } else {
     printf("[*] CPU Temperature is under set limit: %.2f°C\n",
            current_cpu_temp);
