@@ -1,0 +1,3 @@
+- Have to update the way we print the output
+- Add the functionality to take constants as an argument
+- Improve error handling
