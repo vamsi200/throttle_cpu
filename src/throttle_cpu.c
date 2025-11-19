@@ -286,7 +286,7 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, handle_sigint);
 
   if (argc >= 2 && strcmp(argv[1], "--help") == 0) {
-    printf("\nhrottlenUsage: sudo %s <Temperature_Limit> <Max_Attempts> "
+    printf("Usage: sudo %s <Temperature_Limit> <Max_Attempts> "
            "<Wait_Time_After_Throttle>\n",
            argv[0]);
     print_help();
