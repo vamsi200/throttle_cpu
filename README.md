@@ -1,10 +1,10 @@
-# CPU Temperature Monitor
+# Throttle CPU
 
-A C program that monitors CPU temperature and automatically throttles CPU frequency to prevent overheating on Linux systems. This tool provides a simple yet effective way to manage CPU temperatures through frequency control.
+A C program that monitors CPU temperature and automatically throttles CPU frequency to prevent overheating on Linux systems.
 
 ## Description
 
-This program continuously monitors the CPU temperature and automatically reduces the CPU frequency when the temperature exceeds a user-defined limit. It will attempt to throttle the CPU multiple times if necessary and restore original frequencies when temperatures return to safe levels.
+This program continuously monitors the CPU temperature and automatically reduces the CPU frequency when the temperature exceeds a user-defined limit.
 
 ## Features
 
@@ -29,32 +29,35 @@ This program continuously monitors the CPU temperature and automatically reduces
 1. Clone the repository or download the source code
 2. Compile the program:
    ```bash
-   gcc -o cpu_throttle cpu_throttle.c
+   gcc throttle_cpu.c -o throttle_cpu
    ```
 
 ## Usage
 
-Run the program with root privileges and specify the temperature limit in Celsius:
+Run the program with `root` privileges and specify the temperature limit in Celsius:
 
 ```bash
-sudo ./cpu_throttle <Temperature_Limit>
+Usage: sudo ./throttle_cpu <Temperature_Limit> <Max_Attempts> <Wait_Time_After_Throttle>
+Arguments:
+  Temperature_Limit            : Maximum CPU temperature before throttling (1–110°C)
+  Max_Attempts                 : Number of times the program will attempt to throttle (default: 5)
+  Wait_Time_After_Throttle     : Wait time between throttle attempts, in seconds (default: 15)
 ```
 
 Example:
 ```bash
-sudo ./cpu_throttle 80    # Sets temperature limit to 80°C
+sudo ./throttle_cpu 80    # Sets temperature limit to 80°C
 ```
 
 ## Configuration Constants
 
-The program includes several configurable parameters:
+The program includes few fixed parameters(change them if you want):
 
 ```c
 #define FREQUENCY_DECREMENT 500000      // Frequency reduction step (Hz)
-#define WAIT_TIME_AFTER_THROTTLE 15     // Wait time after throttling (seconds)
 #define WAIT_TIME_AFTER_TEMP_DROP 3000  // Wait time after temperature drops (seconds)
-#define MAX_ATTEMPTS 5                  // Maximum throttling attempts
 ```
+
 
 ## How It Works
 
@@ -68,16 +71,6 @@ The program includes several configurable parameters:
    - Exits the program
 4. Handles Ctrl+C (SIGINT) gracefully by restoring original frequencies
 
-## Functions
-
-- `get_current_cpu_temp()`: Reads current CPU temperature
-- `get_current_cpu_frequency()`: Gets current maximum frequency for a CPU core
-- `set_cpu_frequency()`: Sets new maximum frequency for a CPU core
-- `get_original_cpu_frequency()`: Retrieves the original maximum frequency
-- `throttle()`: Implements the main throttling logic
-- `unthrottle()`: Restores original CPU frequencies
-- `handle_sigint()`: Handles interrupt signals
-
 ## Error Handling
 
 The program includes comprehensive error handling for:
@@ -85,6 +78,9 @@ The program includes comprehensive error handling for:
 - Temperature and frequency reading/writing
 - Invalid user input
 - System calls
+
+## Demo GIF
+![Demo](./src/output.gif)
 
 ## Notes
 
@@ -94,17 +90,6 @@ The program includes comprehensive error handling for:
 - The program continuously monitors temperature until interrupted
 - Use Ctrl+C to safely exit and restore original frequencies
 
-## Safety Features
-
-- Maximum attempt limit to prevent excessive throttling
-- Graceful shutdown with signal handling
-- Automatic restoration of original frequencies
-- Temperature verification after throttling
-
 ## License
 
 This project is open source and available under the MIT License.
-
-
----
-Note: Always monitor your system when testing new temperature management tools.
